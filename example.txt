@@ -1,0 +1,4 @@
+example.com
+example.org
+example.net
+valcato.com
