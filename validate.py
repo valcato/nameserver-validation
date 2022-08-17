@@ -18,7 +18,10 @@ for input_filename in sys.argv[1:]:
 invalid_domains = []
 
 for domain in domains:
-    records = dns.resolver.resolve(domain, "NS")
+    try:
+        records = dns.resolver.resolve(domain, "NS")
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+        continue
     records = {record.to_text() for record in records}
     if records.intersection(VALID_NAMESERVERS) == set():
         invalid_domains.append(domain)
