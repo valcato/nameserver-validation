@@ -19,7 +19,7 @@ for input_filename in sys.argv[1:]:
 
 def get_ns_records(domain):
     try:
-        records = dns.resolver.resolve(domain, "NS")
+        return dns.resolver.resolve(domain, "NS")
     except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.NoNameservers):
         return None
 
