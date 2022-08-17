@@ -1,6 +1,7 @@
 import dns.resolver
 
 import sys
+import time
 
 
 VALID_NAMESERVERS = {
@@ -15,15 +16,23 @@ for input_filename in sys.argv[1:]:
     with open(input_filename) as input_f:
         domains = domains.union({l.strip() for l in input_f})
 
-invalid_domains = []
 
-for domain in domains:
+def get_ns_records(domain):
     try:
         records = dns.resolver.resolve(domain, "NS")
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.NoNameservers):
+        return None
+
+
+for domain in domains:
+    while True:
+        try:
+            records = get_ns_records(domain)
+            break
+        except dns.resolver.LifetimeTimeout:
+            time.sleep(60)
+    if records is None:
         continue
     records = {record.to_text() for record in records}
     if records.intersection(VALID_NAMESERVERS) == set():
-        invalid_domains.append(domain)
-
-print("\n".join(invalid_domains))
+        print(domain)
